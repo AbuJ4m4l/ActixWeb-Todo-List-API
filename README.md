@@ -1,63 +1,76 @@
-# Todo Application Using Actix-Web and Rust ⚙️
 
-[![Twitter](https://img.shields.io/twitter/follow/MrXeyad?style=social)](https://twitter.com/MrXeyad)
+# Actix-Web Todo Application 🚀
 
-This application uses the Actix-Web framework to create a simple web service for managing a Todo list.
+This Rust-based web application uses Actix-Web to manage a Todo list. It's a simple API that allows users to add, remove, update, and get Todo items.
 
-## Structure 📕
+## Application Structure 🏗️
 
-- `Todo`: A structure defining a task without an ID.
-- `TodoWithID`: A structure defining a task with an ID.
-- `AppState`: The shared state containing the Todo list.
+- `Todo`: A struct to define a task without an ID.
+- `TodoWithID`: A struct to define a task with an ID.
+- `AppState`: The shared application state, storing Todo items.
 
-## API Endpoints 🔗
+## API Endpoints 🌐
 
-- `/add`: To add a new task.
-  - Request method: POST
-  - JSON request body:
-    ```json
-    {
-      "name": "Task Name",
-      "description": "Task Description"
-    }
-    ```
-- `/remove`: To remove a task by ID.
-  - Request method: POST
-  - JSON request body:
-    ```json
-    {
-      "id": 1
-    }
-    ```
-- `/get`: To retrieve information about a task by ID.
-  - Request method: GET
-  - JSON request body:
-    ```json
-    {
-      "id": 1
-    }
-    ```
-- `/update`: To update a task.
-  - Request method: PATCH
-  - JSON request body:
-    ```json
-    {
-      "id": 1,
-      "name": "Updated Task Name",
-      "description": "Updated Task Description"
-    }
-    ```
+### 1. Add a Todo
+- **Endpoint**: `/add`
+- **Method**: POST
+- **Body**:
+  ```json
+  {
+    "name": "Your Task Name",
+    "description": "Your Task Description"
+  }
+  ```
+- **Action**: Adds a new Todo item to the list.
 
-## How to Run the Application ▶️
+### 2. Remove a Todo
+- **Endpoint**: `/remove`
+- **Method**: POST
+- **Body**:
+  ```json
+  {
+    "id": 1
+  }
+  ```
+- **Action**: Removes a Todo item by ID.
 
-1. Install Rust and Cargo.
-2. Clone the Reposistory
-3. Run the command `cargo run`.
+### 3. Get a Todo
+- **Endpoint**: `/get`
+- **Method**: GET
+- **Body**:
+  ```json
+  {
+    "id": 1
+  }
+  ```
+- **Action**: Retrieves details of a Todo item by ID.
 
-## How to Use the Application ✅
+### 4. Update a Todo
+- **Endpoint**: `/update`
+- **Method**: PATCH
+- **Body**:
+  ```json
+  {
+    "id": 1,
+    "name": "Updated Task Name",
+    "description": "Updated Task Description"
+  }
+  ```
+- **Action**: Updates the details of a Todo item by ID.
 
-Use tools like Postman or curl to send HTTP requests to the above endpoints, using the appropriate JSON request body for each.
+## Running the Application 🏃
 
----
+1. Ensure Rust and Cargo are installed.
+2. Clone the repository or copy the code into a `main.rs` file.
+3. Run the application using `cargo run`.
+4. The server will start at `http://0.0.0.0:8080`.
 
-⚠️ This project is for educational purposes and is not intended for production use.
+## Using the Application 🛠️
+
+Send HTTP requests to the endpoints listed above using tools like Postman or curl. Include the appropriate JSON body for each request.
+
+## Notes 📝
+
+- This application is for educational purposes.
+- It demonstrates basic CRUD operations using Actix-Web in Rust.
+

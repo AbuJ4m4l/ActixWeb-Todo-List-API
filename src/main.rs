@@ -1,4 +1,4 @@
-use actix_web::{web, App, HttpServer, Responder};
+use actix_web::{web, App, HttpServer, Responder, HttpResponse};
 use serde::Deserialize;
 use std::sync::Mutex;
 
@@ -10,49 +10,50 @@ struct Todo {
 
 #[derive(Deserialize, Debug, Clone)]
 struct TodoWithID {
-    id: u32,
+    id: i32,
     name: String,
     description: String,
 }
 
 struct AppState {
-    todos: Mutex<Vec<TodoWithID>>, // Use TodoWithID instead of Todo
+    todos: Mutex<Vec<TodoWithID>>,
+}
+
+#[derive(Deserialize, Debug, Clone, PartialEq)]
+struct Id {
+    id: i32,
 }
 
 async fn add(todo: web::Json<Todo>, data: web::Data<AppState>) -> impl Responder {
     let mut todos = data.todos.lock().unwrap();
-    let new_id = todos.len() as u32; // Generate a new ID
-    todos.push(TodoWithID {
-        id: new_id,
-        name: todo.name.clone(),
-        description: todo.description.clone(),
-    });
-    format!("Added: {:?}", todos)
+    let new_id = todos.len() as i32;
+    todos.push(TodoWithID { id: new_id, name: todo.name.clone(), description: todo.description.clone() }); 
+     HttpResponse::Ok().finish()
 }
 
 async fn remove(
-    id: web::Json<u32>,
+    id: web::Json<Id>,
     data: web::Data<AppState>,
 ) -> impl Responder {
     let mut todos = data.todos.lock().unwrap();
 
-    match todos.iter().position(|t| t.id == *id) { // Dereference id
+    match todos.iter().position(|t| Id { id: t.id } == Id { id: id.id }) {
         Some(index) => {
             todos.remove(index);
-            format!("Removed: {:?}", todos)
+          HttpResponse::Ok().finish()
         },
-        None => "Todo not found".to_string(),
+        None => HttpResponse::NotFound().finish()
     }
 }
 
 async fn get(
-    id: web::Json<u32>,
+    id: web::Json<Id>,
     data: web::Data<AppState>,
 ) -> impl Responder {
     let todos = data.todos.lock().unwrap();
-    match todos.iter().find(|t| t.id == *id) { // Change to find and dereference id
-        Some(todo) => format!("{:?}", todo),
-        None => "Todo not found".to_string(),
+    match todos.iter().find(|t| Id { id: t.id } == Id { id: id.id }) {
+        Some(todo) => HttpResponse::Ok().json(format!("{:?}", todo)),
+        None => HttpResponse::NotFound().finish()
     }
 }
 
@@ -62,10 +63,10 @@ async fn update(
 ) -> impl Responder {
     let mut todos = data.todos.lock().unwrap();
     if let Some(index) = todos.iter().position(|t| t.id == todo.id) {
-        todos[index] = todo.into_inner(); // Correctly update the todo
-        format!("Updated: {:?}", todos)
+        todos[index] = todo.into_inner();
+        HttpResponse::Ok().json(format!("Updated: {:?}", todos))
     } else {
-        "Todo item not found".to_string()
+        HttpResponse::NotFound().finish()
     }
 }
 
