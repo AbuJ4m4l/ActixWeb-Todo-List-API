@@ -8,41 +8,62 @@ struct Todo {
     description: String,
 }
 
+#[derive(Deserialize, Debug, Clone)]
+struct TodoWithID {
+    id: u32,
+    name: String,
+    description: String,
+}
+
 struct AppState {
-    todos: Mutex<Vec<Todo>>,
+    todos: Mutex<Vec<TodoWithID>>, // Use TodoWithID instead of Todo
 }
 
 async fn add(todo: web::Json<Todo>, data: web::Data<AppState>) -> impl Responder {
     let mut todos = data.todos.lock().unwrap();
-    todos.push(todo.into_inner());
-    format!("Added: {:?}", *todos)
+    let new_id = todos.len() as u32; // Generate a new ID
+    todos.push(TodoWithID {
+        id: new_id,
+        name: todo.name.clone(),
+        description: todo.description.clone(),
+    });
+    format!("Added: {:?}", todos)
 }
 
 async fn remove(
-    todo: web::Json<Todo>,
+    id: web::Json<u32>,
     data: web::Data<AppState>,
 ) -> impl Responder {
     let mut todos = data.todos.lock().unwrap();
 
-    match todos.iter().position(|t| t.name == todo.name) {
+    match todos.iter().position(|t| t.id == *id) { // Dereference id
         Some(index) => {
             todos.remove(index);
-            format!("Removed: {:?}", *todos)
+            format!("Removed: {:?}", todos)
         },
         None => "Todo not found".to_string(),
     }
 }
 
-async fn get(data: web::Data<AppState>) -> impl Responder {
+async fn get(
+    id: web::Json<u32>,
+    data: web::Data<AppState>,
+) -> impl Responder {
     let todos = data.todos.lock().unwrap();
-    format!("{:?}", *todos)
+    match todos.iter().find(|t| t.id == *id) { // Change to find and dereference id
+        Some(todo) => format!("{:?}", todo),
+        None => "Todo not found".to_string(),
+    }
 }
 
-async fn update(todo: web::Json<Todo>, data: web::Data<AppState>) -> impl Responder {
+async fn update(
+    todo: web::Json<TodoWithID>,
+    data: web::Data<AppState>,
+) -> impl Responder {
     let mut todos = data.todos.lock().unwrap();
-    if let Some(index) = todos.iter().position(|t| t.name == todo.name) {
-        todos[index] = todo.into_inner();
-        format!("Updated: {:?}", *todos)
+    if let Some(index) = todos.iter().position(|t| t.id == todo.id) {
+        todos[index] = todo.into_inner(); // Correctly update the todo
+        format!("Updated: {:?}", todos)
     } else {
         "Todo item not found".to_string()
     }
@@ -62,7 +83,7 @@ async fn main() -> std::io::Result<()> {
             .route("/get", web::get().to(get))
             .route("/update", web::patch().to(update))
     })
-        .bind("127.0.0.1:8080")?
-        .run()
-        .await
+    .bind("0.0.0.0:8080")?
+    .run()
+    .await
 }

@@ -1,7 +1,6 @@
 # Todo Application Using Actix-Web and Rust ⚙️
 
-[![Twitter](https://img.shields.io/twitter/follow/@MrXeyad?style=social)](https://twitter.com/MrXeyad)
-[![Discord](https://img.shields.io/discord/_n.8)](https://discord.com)
+[![Twitter](https://img.shields.io/twitter/follow/MrXeyad?style=social)](https://twitter.com/MrXeyad)
 
 This application uses the Actix-Web framework to create a simple web service for managing a Todo list.
 
